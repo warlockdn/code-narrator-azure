@@ -22,12 +22,6 @@ export default class ConfigHelper {
     public static async load(projectConfig: Partial<ICodeNarratorConfig> = {}) {
         dotnet.config()
         ConfigHelper.env = process.env;
-        ConfigHelper.OpenAiKey = ConfigHelper.env['OPENAI_API_KEY']
-
-        if (!ConfigHelper.OpenAiKey) {
-            console.error('Missing OPENAI_API_KEY in .env file. Make sure to create .env file in your root and include OPENAI_API_KEY=Your_OpenAI_Key')
-            throw new Error('Missing OpenAI API key')
-        }
 
         if (!(projectConfig as any).fromFile) {
             projectConfig = await ConfigGenerator.generate(projectConfig);

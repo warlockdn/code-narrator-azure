@@ -1,4 +1,4 @@
-import {ChatCompletionRequestMessage, Configuration, OpenAIApi} from 'openai';
+import {AzureOpenAI} from 'openai';
 import {setTimeout} from 'timers/promises';
 import ConfigHelper from "../config/ConfigHelper";
 import GenericAIResponse from "../model/GenericAIResponse";
@@ -6,17 +6,14 @@ import DefaultSettings from "../config/DefaultSettings";
 import IGenericAIService from "./IGenericAIService";
 
 export default class OpenAIService implements IGenericAIService {
-    openai: OpenAIApi;
+    openai: AzureOpenAI;
     models = new Map([
-        ['gpt-3.5-turbo', 4096],
-        ['gpt-4', 8192],
-        ['gpt-4-32k', 32768]
+        ['gpt-40', 8192]
     ]);
     constructor() {
-        const configuration = new Configuration({
-            apiKey: ConfigHelper.OpenAiKey
+        this.openai = new AzureOpenAI({
+            deployment: 'gpt40'
         });
-        this.openai = new OpenAIApi(configuration);
     }
 
     public async query(questions : string[], assistantMessages? : string[]): Promise<GenericAIResponse>  {
@@ -31,7 +28,7 @@ export default class OpenAIService implements IGenericAIService {
     }
 
     private async queryQuestions(questions : string[], errorCount = 0, model : string, assistantMessages? : string[]): Promise<GenericAIResponse> {
-        let messages : ChatCompletionRequestMessage[] = []
+        let messages = []
         try {
             await setTimeout(1 * 500);
 
@@ -67,9 +64,9 @@ export default class OpenAIService implements IGenericAIService {
                 console.error(`Message is to long (${messageLength}). Will not query gpt`)
                 return {answer:'', requestMessages:messages} as GenericAIResponse;
             }
-            const completion = await this.openai.createChatCompletion({
+            const completion = await this.openai.chat.completions.create({
                 model: model,
-                messages : messages,
+                messages : messages as any,
                 temperature: 0.1,
                 max_tokens: parseInt(maxTokens.toString()),
                 top_p: 1,
@@ -77,11 +74,11 @@ export default class OpenAIService implements IGenericAIService {
                 presence_penalty: 0
 
             });
-            if (completion.data.choices.length == 0) {
+            if (completion.choices.length == 0) {
                 throw new Error(`Did not get answer. ChatGPT is down. Run again. `)
             }
             let response : GenericAIResponse = {
-                answer : completion.data.choices[0].message!.content ?? '',
+                answer : completion.choices[0].message!.content ?? '',
                 requestMessages : messages
             }
 

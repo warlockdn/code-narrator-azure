@@ -22,7 +22,7 @@
   "scripts": {
     "compile": "tsc",
     "build": "npm run compile && gulp",
-    "start": "npx ts-node .\\src\\cli.ts"
+    "start": "npx ts-node ./src/cli.ts"
   },
   "author": "Ingi Gauti Ragnarsson @ingig",
   "license": "ISC",
@@ -51,7 +51,7 @@
     "mime-db": "^1.52.0",
     "mime-types": "^2.1.35",
     "multimatch": "^6.0.0",
-    "openai": "^3.1.0",
+    "openai": "^4.52.3",
     "yargs": "^17.7.1"
   },
   "devDependencies": {
